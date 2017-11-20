@@ -19,7 +19,7 @@ ceph-dash - a free ceph dashboard / monitoring api
 	- [FAQ](#user-content-faq)
 
 
-This is a small and clean approach of providing the [Ceph](http://ceph.com) overall cluster health status via a restful json api as well as via a (hopefully) fancy web gui. There are no dependecies to the existing ```ceph-rest-api```. This wsgi application talks to the cluster directly via librados.
+This is a small and clean approach of providing the [Ceph](http://ceph.com) overall cluster health status via a restful json api as well as via a (hopefully) fancy web gui. There are no dependencies to the existing ```ceph-rest-api```. This wsgi application talks to the cluster directly via librados.
 
 You can find a blog entry regarding monitoring a Ceph cluster with ceph-dash on [Crapworks](http://crapworks.de/blog/2015/01/05/ceph-monitoring/).
 
@@ -30,7 +30,7 @@ Newest Feature
 
 ### Docker container
 
-Since everybody recently seems to be hyped as hell about the container stuff, I've decided that I can contribute to that with a ready-to-use docker container. Available at [Docker Hub](https://hub.docker.com/r/crapworks/ceph-dash/) you cann pull the ceph-dash container and configure it via the following environment variables:
+Since everybody recently seems to be hyped as hell about the container stuff, I've decided that I can contribute to that with a ready-to-use docker container. Available at [Docker Hub](https://hub.docker.com/r/crapworks/ceph-dash/) you can pull the ceph-dash container and configure it via the following environment variables:
 
 * Required: $CEPHMONS (comma separated list of ceph monitor ip addresses)
 * Required: $KEYRING (full keyring that you want to use to connect to your ceph cluster)
@@ -89,7 +89,7 @@ If you hit the address via a browser, you see the web frontend, that will inform
 REST Api
 --------
 
-If you access the address via commandline tools or programming languages, use ```content-type: application/json``` and you will get all the information as a json output (wich is acutally the json formatted output of ```ceph status --format=json```.
+If you access the address via commandline tools or programming languages, use ```content-type: application/json``` and you will get all the information as a json output (which is actually the json formatted output of ```ceph status --format=json```.
 
 Anyways, this is not a wrapper around the ceph binary, it uses the python bindings of librados.
 
@@ -149,6 +149,25 @@ to
 app.run(host='0.0.0.0', port=6666, debug=True)
 ```
 Please keep in mind that the development server should not be used in a production environment. Ceph-dash should be deployed into a proper webserver like Apache or Nginx.
+
+### Running ceph-dash behind a reverse proxy
+
+Since Version 1.2 ceph-dash is able to run behind a reverse proxy that rewrites the path where ceph-dash resides correctly. If you are using nginx, you need to use a config like this:
+
+```
+server {
+    location /foobar {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header X-Script-Name /foobar;
+    }
+}
+
+```
+
+See also: https://github.com/wilbertom/flask-reverse-proxy, which is where I got the code for doing this.
 
 ### Problems with NginX and uwsgi
 
